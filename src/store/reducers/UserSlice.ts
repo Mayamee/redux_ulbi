@@ -1,5 +1,6 @@
 import { IUser } from "../../models/IUser";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { fetchUsers } from "./ActionCreators";
 
 interface IUserState {
   users: IUser[];
@@ -15,19 +16,20 @@ const initialState: IUserState = {
 export const userSlice = createSlice({
   name: "user",
   initialState,
-  reducers: {
-    usersFetching(state) {
-      state.isLoading = true;
-    },
-    usersFetchingSuccess(state, action: PayloadAction<IUser[]>) {
-      state.isLoading = false;
-			state.error = null;
-			state.users = action.payload;
-    },
-    usersFetchingError(state, action: PayloadAction<string>) {
-      state.isLoading = false;
-			state.error = action.payload;
-    },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchUsers.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchUsers.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.users = action.payload || [];
+      })
+      .addCase(fetchUsers.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 
